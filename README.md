@@ -14,7 +14,7 @@ Where a user has to specify a new password and wishes to see its strength in lin
 
 ## Data Source
 
-- Password: The new password string attibute.
+- Password: The new password string attribute.
 - Minimum password length: The minimum number of characters permissible in the password.
 - Requires digit: Whether the password must contain a digit character.
 - Requires mixed case: Whether the password must contain lower and upper case letters.

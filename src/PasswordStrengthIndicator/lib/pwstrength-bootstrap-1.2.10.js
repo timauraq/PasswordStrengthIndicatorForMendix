@@ -1,3 +1,8 @@
+define([], function () {
+
+	return {
+		createInstance: function (jQuery) {
+
 /*!
 * jQuery Password Strength plugin for Twitter Bootstrap
 *
@@ -706,3 +711,9 @@ var methods = {};
     };
 }(jQuery, methods));
 }(jQuery));
+
+return jQuery;
+		}
+	};
+
+});

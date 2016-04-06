@@ -19,9 +19,9 @@
 require({
   packages: [
     {
-          name: 'jquery-1.11.2',
+          name: 'jqwrapper',
           location: '../../widgets/PasswordStrengthIndicator/lib',
-          main: 'jquery-1.11.2'
+          main: 'jqwrapper'
     }, {
            name: 'bootstrap',
            location: '../../widgets/PasswordStrengthIndicator/lib',
@@ -48,14 +48,16 @@ require({
     "dojo/text",
     "dojo/html",
     "dojo/_base/event",
-    "jquery-1.11.2",
+    "jqwrapper",
     "bootstrap",
     "pwstrength-bootstrap-1.2.10",
     "dojo/text!PasswordStrengthIndicator/widget/template/PasswordStrengthIndicator.html"
-], function(declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoProp, dojoGeometry, dojoClass, dojoStyle, dojoConstruct, dojoArray, dojoLang, dojoText, dojoHtml, dojoEvent, _jQuery, _bootstrap, _pwstrength, widgetTemplate) {
+], function(declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoProp, dojoGeometry, dojoClass, dojoStyle, dojoConstruct, dojoArray, dojoLang, dojoText, dojoHtml, dojoEvent, _jqwrapper, _bootstrap, _pwstrength, widgetTemplate) {
     "use strict";
 
-    var $ = _jQuery.noConflict(true);
+    var $ = _jqwrapper;
+    $ = _bootstrap.createInstance($);
+    $ = _pwstrength.createInstance($);
 
     // Declare widget's prototype.
     return declare("PasswordStrengthIndicator.widget.PasswordStrengthIndicator", [ _WidgetBase, _TemplatedMixin ], {
@@ -244,6 +246,7 @@ require({
         // Rerender the interface.
         _updateRendering: function() {
             logger.debug(this.id + "._updateRendering");
+
 
             this._clearValidations();
         },

@@ -12,7 +12,7 @@
 
     Documentation
     ========================
-    Describe your widget here.
+    This widget is a wrapper for the "jQuery Password Strength Meter for Twitter Bootstrap" by Alejandro Blanco
 */
 
 // Required module list. Remove unnecessary modules, you can always get them back from the boilerplate.
@@ -117,12 +117,7 @@ require({
                 }
             };
 
-            this.options.ui.errorMessages = {
-            //Declare extra error messages
-              penaliseNoDigit: "Your password must contain a digit",
-              penaliseNoMixedCase: "Your password must contain both lower and upper case letters",
-              penaliseNoSymbol: "Your password must contain a symbol"
-            }
+
         },
 
         // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
@@ -132,6 +127,16 @@ require({
             this.options.common = {
                 minChar: this.minLength,
             };
+
+            this.options.ui.errorMessages = {
+            //Declare extra error messages
+            wordLength: this.wordLengthMessage,
+            wordRepetitions: this.wordRepetitionsMessage,
+            wordSequences: this.wordSequencesMessage,
+              penaliseNoDigit: this.noDigitMessage,
+              penaliseNoMixedCase: this.noMixedCaseMessage,
+              penaliseNoSymbol: this.noSymbolMessage
+            }
 
             this._updateRendering();
             this._setupEvents();

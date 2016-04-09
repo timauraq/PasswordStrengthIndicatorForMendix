@@ -221,6 +221,11 @@ require({
 
               this._prevPasswordValue = $el;
 
+              //Execute onChange microflow if configured
+              if( this.onChangeMicroflow ) {
+                this._execMf(this._contextObj.getGuid(), this.onChangeMicroflow);
+              }
+
             });
             this.connect(this.infoTextNode, "click", function(e) {
                 // Only on mobile stop event bubbling!
@@ -247,6 +252,28 @@ require({
                 }
             });
         },
+
+        _execMf: function (guid, mf, cb) {
+            if (guid && mf) {
+                mx.data.action({
+                    params: {
+                        applyto: 'selection',
+                        actionname: mf,
+                        guids: [guid]
+                    },
+                    callback: function () {
+                        if (cb) {
+                            cb();
+                        }
+                    },
+                    error: function (e) {
+                        console.error('Error running Microflow: ' + e);
+                    }
+                }, this);
+            }
+
+        },
+
 
         // Rerender the interface.
         _updateRendering: function() {

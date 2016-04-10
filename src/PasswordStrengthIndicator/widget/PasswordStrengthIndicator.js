@@ -278,7 +278,10 @@ require({
         // Rerender the interface.
         _updateRendering: function() {
             logger.debug(this.id + "._updateRendering");
-
+            var w = $(".form-control").width();
+            $("password-strength-width").attr(
+              'style', 'width: '+w+' !important' 
+            );
 
             this._clearValidations();
         },

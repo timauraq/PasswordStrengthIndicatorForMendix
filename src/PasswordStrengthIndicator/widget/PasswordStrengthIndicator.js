@@ -89,6 +89,7 @@ require({
             // Uncomment the following line to enable debug messages
             //logger.level(logger.DEBUG);
             logger.debug(this.id + ".constructor");
+            console.log(this.id + ".contructor");
             this._handles = [];
 
             //Specify options for password strength indicators
@@ -123,6 +124,7 @@ require({
         // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
         postCreate: function() {
             logger.debug(this.id + ".postCreate");
+            console.log(this.id + ".postCreate");
 
             this.options.common = {
                 minChar: this.minLength,
@@ -138,6 +140,19 @@ require({
               penaliseNoSymbol: this.noSymbolMessage
             }
 
+            const penScore = -100;
+            $(':password').pwstrength(this.options);
+            //add extra rules
+            $(':password').pwstrength("addRule", "penaliseNoDigit", function(options, word, score) {
+                return !word.match(/\d+/) ? score : 0;
+            }, penScore, this.requiresDigit);
+            $(':password').pwstrength("addRule", "penaliseNoMixedCase", function(options, word, score) {
+                return !word.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/) ? score : 0;
+            }, penScore, this.requiresMixedCase);
+            $(':password').pwstrength("addRule", "penaliseNoSymbol", function(options, word, score) {
+               return !word.match(/[!,@,#,$,%,\^,&,*,?,_,~]+/) ? score : 0;
+            }, penScore, this.requiresSymbol);
+
             this._updateRendering();
             this._setupEvents();
         },
@@ -145,7 +160,7 @@ require({
         // mxui.widget._WidgetBase.update is called when context is changed or initialized. Implement to re-render and / or fetch data.
         update: function(obj, callback) {
             logger.debug(this.id + ".update");
-
+            console.log(this.id + ".update");
             this._contextObj = obj;
             this._resetSubscriptions();
             this._updateRendering();
@@ -156,22 +171,28 @@ require({
         // mxui.widget._WidgetBase.enable is called when the widget should enable editing. Implement to enable editing if widget is input widget.
         enable: function() {
           logger.debug(this.id + ".enable");
+          console.log(this.id + ".enable");
         },
 
         // mxui.widget._WidgetBase.enable is called when the widget should disable editing. Implement to disable editing if widget is input widget.
         disable: function() {
           logger.debug(this.id + ".disable");
+          console.log(this.id + ".disable");
         },
 
         // mxui.widget._WidgetBase.resize is called when the page's layout is recalculated. Implement to do sizing calculations. Prefer using CSS instead.
         resize: function(box) {
           logger.debug(this.id + ".resize");
+          console.log(this.id + ".resize");
         },
 
         // mxui.widget._WidgetBase.uninitialize is called when the widget is destroyed. Implement to do special tear-down work.
         uninitialize: function() {
           logger.debug(this.id + ".uninitialize");
+          console.log(this.id + ".uninit");
+
             // Clean up listeners, helper objects, etc. There is no need to remove listeners added with this.connect / this.subscribe / this.own.
+            $(':password').pwstrength("destroy");
         },
 
         // We want to stop events on a mobile device
@@ -185,9 +206,10 @@ require({
         // Attach events to HTML dom elements
         _setupEvents: function() {
             logger.debug(this.id + "._setupEvents");
+            console.log(this.id + ".setupevents");
             this.connect(this.passwordInputNode, "change", function(e) {
                 // Function from mendix object to set an attribute.
-                this._contextObj.set(this.passwordString, this.passwordInputNode.value);
+                //this._contextObj.set(this.passwordString, this.passwordInputNode.value);
             });
             this.connect(this.passwordInputNode, "keyup", function(e) {
 
@@ -196,7 +218,7 @@ require({
               var prevLength = 0;
               if(this._prevPasswordValue!=null) prevLength = this._prevPasswordValue.length;
 
-              if( prevLength===0 && $el.length>prevLength ) {
+              /*if( prevLength===0 && $el.length>prevLength ) {
                 //construct password strength indicator on entering first character
                   const penScore = -100;
                   $(':password').pwstrength(this.options);
@@ -214,12 +236,14 @@ require({
               } else if ($el.length===0 && $el.length<prevLength) {
                 //remove indicator when password field is emptied
                 $(':password').pwstrength("destroy");
-              } else {
+              } else {*/
                 //update indicator
                 $(':password').pwstrength("forceUpdate");
-              }
+              //}
 
               this._prevPasswordValue = $el;
+
+              this._contextObj.set(this.passwordString, this.passwordInputNode.value);
 
               //Execute onChange microflow if configured
               if( this.onChangeMicroflow ) {
@@ -277,7 +301,7 @@ require({
 
         // Rerender the interface.
         _updateRendering: function() {
-            logger.debug(this.id + "._updateRendering");
+            console.log(this.id + "._updateRendering");
 
             this._clearValidations();
         },
@@ -319,6 +343,7 @@ require({
         // Reset subscriptions.
         _resetSubscriptions: function() {
             logger.debug(this.id + "._resetSubscriptions");
+              console.log(this.id + ".resetSubs");
             // Release handles on previous object, if any.
             if (this._handles) {
                 dojoArray.forEach(this._handles, function (handle) {

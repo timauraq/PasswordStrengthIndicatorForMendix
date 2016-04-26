@@ -14,7 +14,7 @@
     ========================
     This widget is a wrapper for the "jQuery Password Strength Meter for Twitter Bootstrap" by Alejandro Blanco
 
-    The options are analogous to those in the Mendix security password settings.  Error messages are customisable.     
+    The options are analogous to those in the Mendix security password settings.  Error messages are customisable.
 */
 
 // Required module list. Remove unnecessary modules, you can always get them back from the boilerplate.
@@ -215,35 +215,8 @@ require({
             });
             this.connect(this.passwordInputNode, "keyup", function(e) {
 
-              var $el = $(e.target).val();
-
-              var prevLength = 0;
-              if(this._prevPasswordValue!=null) prevLength = this._prevPasswordValue.length;
-
-              /*if( prevLength===0 && $el.length>prevLength ) {
-                //construct password strength indicator on entering first character
-                  const penScore = -100;
-                  $(':password').pwstrength(this.options);
-                  //add extra rules
-                  $(':password').pwstrength("addRule", "penaliseNoDigit", function(options, word, score) {
-                      return !word.match(/\d+/) ? score : 0;
-                  }, penScore, this.requiresDigit);
-                  $(':password').pwstrength("addRule", "penaliseNoMixedCase", function(options, word, score) {
-                      return !word.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/) ? score : 0;
-                  }, penScore, this.requiresMixedCase);
-                  $(':password').pwstrength("addRule", "penaliseNoSymbol", function(options, word, score) {
-                     return !word.match(/[!,@,#,$,%,\^,&,*,?,_,~]+/) ? score : 0;
-                  }, penScore, this.requiresSymbol);
-
-              } else if ($el.length===0 && $el.length<prevLength) {
-                //remove indicator when password field is emptied
-                $(':password').pwstrength("destroy");
-              } else {*/
                 //update indicator
                 $(':password').pwstrength("forceUpdate");
-              //}
-
-              this._prevPasswordValue = $el;
 
               this._contextObj.set(this.passwordString, this.passwordInputNode.value);
 

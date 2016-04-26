@@ -13,6 +13,8 @@
     Documentation
     ========================
     This widget is a wrapper for the "jQuery Password Strength Meter for Twitter Bootstrap" by Alejandro Blanco
+
+    The options are analogous to those in the Mendix security password settings.  Error messages are customisable.     
 */
 
 // Required module list. Remove unnecessary modules, you can always get them back from the boilerplate.

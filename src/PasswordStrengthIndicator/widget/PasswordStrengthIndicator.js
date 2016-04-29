@@ -67,15 +67,19 @@ require({
         templateString: widgetTemplate,
 
         // DOM element
-        inputNodes: null,
+        //inputNodes: null,
         infoTextNode: null,
-        progressBarTextNode: null,
-        passwordInputNode: null,
+        //progressBarTextNode: null,
+        //passwordInputNode: null,
+        
 
         // Parameters configured in the Modeler.
         mfToExecute: "",
         messageString: "",
         passwordString: "",
+        _$inputGroup: null, 
+        _$input: null,  
+        
 
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
         _handles: null,
@@ -128,8 +132,20 @@ require({
             logger.debug(this.id + ".postCreate");
             console.log(this.id + ".postCreate");
 
+            var self = this;
+            
+             // make sure we only select the control for the current id or we'll overwrite previous instances
+            var groupSelector = '#' + this.id + ' .passwordStrength';
+            this._$inputGroup = $(groupSelector); 
+            
+            var inputSelector = '#' + this.id + ' input.mxPasswordStrength';
+            this._$input = $(inputSelector);
+            
             this.options.common = {
                 minChar: this.minLength,
+                onLoad: function () {
+                    
+                }
             };
 
             this.options.ui.errorMessages = {
@@ -141,7 +157,30 @@ require({
               penaliseNoMixedCase: this.noMixedCaseMessage,
               penaliseNoSymbol: this.noSymbolMessage
             }
+            
+            
+            // adjust the template based on the display settings.
+            if( this.showLabel ) {
+                
+                    // width needs to be between 1 and 11
+                    var comboLabelWidth = this.labelWidth < 1 ? 1 : this.labelWidth;
+                    comboLabelWidth = this.labelWidth > 11 ? 11 : this.labelWidth;
+                    
+                    var comboControlWidth = 12 - comboLabelWidth,                    
+                        comboLabelClass = 'col-sm-' + comboLabelWidth,
+                        comboControlClass = 'col-sm-' + comboControlWidth;
+                    
+                    dojoClass.add(this.mxPasswordStrengthLabel, comboLabelClass);
+                    dojoClass.add(this.mxPasswordStrengthInputGroupContainer, comboControlClass);
 
+                this.mxPasswordStrengthLabel.innerHTML = this.fieldCaption;
+            }
+            else {
+                dojoClass.remove(this.mxPasswordStrengthMainContainer, "form-group");
+                dojoConstruct.destroy(this.mxPasswordStrengthLabel);
+            }
+            
+            /*
             const penScore = -100;
             $(':password').pwstrength(this.options);
             //add extra rules
@@ -154,7 +193,10 @@ require({
             $(':password').pwstrength("addRule", "penaliseNoSymbol", function(options, word, score) {
                return !word.match(/[!,@,#,$,%,\^,&,*,?,_,~]+/) ? score : 0;
             }, penScore, this.requiresSymbol);
+            */
 
+             
+            
             this._updateRendering();
             this._setupEvents();
         },
@@ -163,9 +205,40 @@ require({
         update: function(obj, callback) {
             logger.debug(this.id + ".update");
             console.log(this.id + ".update");
-            this._contextObj = obj;
-            this._resetSubscriptions();
-            this._updateRendering();
+            
+            var self = this;
+            
+            if (obj === null) {
+                if (!dojoClass.contains(this.domNode, 'hidden')) {
+                    dojoClass.add(this.domNode, 'hidden');
+                }
+            } else {
+                if (dojoClass.contains(this.domNode, 'hidden')) {
+                    dojoClass.remove(this.domNode, 'hidden');
+                }
+                
+                   const penScore = -100;
+                $(':password').pwstrength(this.options);
+                //add extra rules
+                $(':password').pwstrength("addRule", "penaliseNoDigit", function(options, word, score) {
+                    return !word.match(/\d+/) ? score : 0;
+                }, penScore, this.requiresDigit);
+                $(':password').pwstrength("addRule", "penaliseNoMixedCase", function(options, word, score) {
+                    return !word.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/) ? score : 0;
+                }, penScore, this.requiresMixedCase);
+                $(':password').pwstrength("addRule", "penaliseNoSymbol", function(options, word, score) {
+                    return !word.match(/[!,@,#,$,%,\^,&,*,?,_,~]+/) ? score : 0;
+                }, penScore, this.requiresSymbol);
+                
+                
+                
+                this._contextObj = obj;
+                this._resetSubscriptions();
+                this._updateRendering();
+            
+                $(':password').pwstrength("forceUpdate");
+                
+            }
 
             callback();
         },
@@ -209,46 +282,15 @@ require({
         _setupEvents: function() {
             logger.debug(this.id + "._setupEvents");
             console.log(this.id + ".setupevents");
-            this.connect(this.passwordInputNode, "change", function(e) {
-                // Function from mendix object to set an attribute.
-                //this._contextObj.set(this.passwordString, this.passwordInputNode.value);
-            });
-            this.connect(this.passwordInputNode, "keyup", function(e) {
-
-                //update indicator
-                $(':password').pwstrength("forceUpdate");
-
-              this._contextObj.set(this.passwordString, this.passwordInputNode.value);
-
-              //Execute onChange microflow if configured
-              if( this.onChangeMicroflow ) {
-                this._execMf(this._contextObj.getGuid(), this.onChangeMicroflow);
-              }
-
-            });
-            this.connect(this.infoTextNode, "click", function(e) {
-                // Only on mobile stop event bubbling!
-                this._stopBubblingEventOnMobile(e);
-
-                // If a microflow has been set execute the microflow on a click.
-                if (this.mfToExecute !== "") {
-                    mx.data.action({
-                        params: {
-                            applyto: "selection",
-                            actionname: this.mfToExecute,
-                            guids: [ this._contextObj.getGuid() ]
-                        },
-                        store: {
-                            caller: this.mxform
-                        },
-                        callback: function(obj) {
-                            //TODO what to do when all is ok!
-                        },
-                        error: dojoLang.hitch(this, function(error) {
-                            logger.error(this.id + ": An error occurred while executing microflow: " + error.description);
-                        })
-                    }, this);
-                }
+            this.connect(this.mxPasswordStrength, "keyup", function(e) {
+               
+                    this._contextObj.set(this.passwordString, this.mxPasswordStrength.value);
+                    //$(':password').pwstrength("forceUpdate");
+                    //Execute onChange microflow if configured
+                    if( this.onChangeMicroflow ) {
+                        this._execMf(this._contextObj.getGuid(), this.onChangeMicroflow);
+                    }
+                
             });
         },
 
@@ -277,7 +319,12 @@ require({
         // Rerender the interface.
         _updateRendering: function() {
             console.log(this.id + "._updateRendering");
-
+            
+            if( this._contextObj ){
+                var currentString = this._contextObj.get(this.passwordString);               
+                this._$input.val(currentString);
+            }
+            
             this._clearValidations();
         },
 
@@ -285,14 +332,26 @@ require({
         _handleValidation: function(validations) {
             logger.debug(this.id + "._handleValidation");
             this._clearValidations();
+            
+            var validation = validations[0],
+                message = validation.getReasonByAttribute(this.passwordString);
+
+            if (this.readOnly) {
+                validation.removeAttribute(this.passwordString);
+            } else if (message) {
+                this._addValidation(message);
+                validation.removeAttribute(this.passwordString);
+            }
 
         },
 
         // Clear validations.
         _clearValidations: function() {
             logger.debug(this.id + "._clearValidations");
-            dojoConstruct.destroy(this._alertDiv);
-            this._alertDiv = null;
+            if( this._$alertdiv ) {
+                this._$inputGroup.parent().removeClass('has-error');
+                this._$alertdiv.remove();
+            }
         },
 
         // Show an error message.
@@ -312,7 +371,8 @@ require({
         // Add a validation.
         _addValidation: function(message) {
             logger.debug(this.id + "._addValidation");
-            this._showError(message);
+            this._$alertdiv = $("<div></div>").addClass('alert alert-danger mx-validation-message').html(message);
+            this._$inputGroup.parent().addClass('has-error').append( this._$alertdiv ); 
         },
 
         // Reset subscriptions.

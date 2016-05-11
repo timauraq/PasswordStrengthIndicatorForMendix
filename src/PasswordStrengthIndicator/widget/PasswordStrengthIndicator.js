@@ -320,6 +320,8 @@ require({
         _updateRendering: function() {
             console.log(this.id + "._updateRendering");
             
+            this.mxPasswordStrength.disabled = this.readOnly;
+            
             if( this._contextObj ){
                 var currentString = this._contextObj.get(this.passwordString);               
                 this._$input.val(currentString);
